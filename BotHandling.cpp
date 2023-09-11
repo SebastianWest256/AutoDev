@@ -69,6 +69,14 @@ public:
 
 	}
 
+	void respawn(std::vector<std::vector<nexus>> nexus_vec) {
+		int resawn_index = int(random_float(0, nexus_vec[team].size() - 0.0000001));
+		x_pos = nexus_vec[team][resawn_index].x_pos;
+		y_pos = nexus_vec[team][resawn_index].y_pos;
+		health = 100;
+		waypoints.clear();
+	}
+
 	void draw(SDL_Surface* surface, std::vector<std::vector<std::vector<Uint32>>> texture, int grid_x, int grid_y) {
 
 		draw_asset_rotated(surface, texture[team][texture_id], x_pos + grid_x, y_pos + grid_y, size, rotation);
@@ -233,22 +241,88 @@ public:
 
 	}
 
-	void tick(std::vector<std::vector<cell>> world, std::vector<std::vector<nexus>> nexus_vec, int pixel_size) {
-		int random_index;
-		if (!waypoints.empty()) {
-			move(pixel_size);
-		}
-		else {
-			if (team > 0) {
-				if (!nexus_vec[team * -1 + 3].empty()) {
-					random_index = random_float(0, nexus_vec[team * -1 + 3].size()-0.00001);
-					set_waypoints(world, nexus_vec[team * -1 + 3][random_index].x_pos / 32, nexus_vec[team * -1 + 3][random_index].y_pos / 32, pixel_size, world.size(), world[0].size());
-				}
-			}
+	void tick(std::vector<std::vector<cell>> world, std::vector<std::vector<bot>>& bot_vec, std::vector<std::vector<nexus>>& nexus_vec, int pixel_size) {
+		int target_index;
+		bool enemy_in_range = false;
 
+		for (int i = 0; i < bot_vec.size(); i++) {
+			for (int j = 0; j < bot_vec[i].size(); j++) {
+
+				if (i != team) {
+
+					if (std::sqrt(std::pow(std::abs(bot_vec[i][j].x_pos - x_pos), 2) + std::pow(std::abs(bot_vec[i][j].y_pos - y_pos), 2)) < 10) {
+						enemy_in_range = true;
+						attack(0, i, j, damage, bot_vec, nexus_vec);
+					}
+
+				}
+
+			}
+		}
+		for (int i = 0; i < nexus_vec.size(); i++) {
+			for (int j = 0; j < nexus_vec[i].size(); j++) {
+
+				if (i != team) {
+
+					if (std::sqrt(std::pow(std::abs(nexus_vec[i][j].x_pos - x_pos), 2) + std::pow(std::abs(nexus_vec[i][j].y_pos - y_pos), 2)) < 10) {
+						enemy_in_range = true;
+						attack(1, i, j, damage, bot_vec, nexus_vec);
+					}
+
+				}
+
+			}
+		}
+		if (enemy_in_range == false) {
+			if (!waypoints.empty()) {
+				move(pixel_size);
+			}
+			else {
+				if (type == 0) {
+					if (team > 0) {
+						if (!nexus_vec[team * -1 + 3].empty()) {
+							target_index = random_float(0, nexus_vec[team * -1 + 3].size() - 0.00001);
+							set_waypoints(world, nexus_vec[team * -1 + 3][target_index].x_pos / 32, nexus_vec[team * -1 + 3][target_index].y_pos / 32, pixel_size, world.size(), world[0].size());
+						}else if (!bot_vec[team * -1 + 3].empty()) {
+							target_index = random_float(0, bot_vec[team * -1 + 3].size() - 0.00001);
+							set_waypoints(world, bot_vec[team * -1 + 3][target_index].x_pos / 32, bot_vec[team * -1 + 3][target_index].y_pos / 32, pixel_size, world.size(), world[0].size());
+						}
+					}
+				}
+
+			}
 		}
 
 	}
 
-};
+	void attack(int type, int index0, int index1, int damage, std::vector<std::vector<bot>>& bot_vec, std::vector<std::vector<nexus>>& nexus_vec) {
 
+		if (type == 0) {
+			bot_vec[index0][index1].health -= damage;
+			if (bot_vec[index0][index1].health <= 0) {
+				if (nexus_vec[index0].empty()) {
+					remove(0, index0, index1, bot_vec, nexus_vec);
+				}
+				else {
+					bot_vec[index0][index1].respawn(nexus_vec);
+				}
+			}
+		}
+		else {
+			nexus_vec[index0][index1].health -= damage;
+			if (nexus_vec[index0][index1].health <= 0) {
+				remove(1, index0, index1, bot_vec, nexus_vec);
+			}
+		}
+	}
+
+	void remove(int type, int index0, int index1, std::vector<std::vector<bot>>& bot_vec, std::vector<std::vector<nexus>>& nexus_vec) {
+		if (type == 0) {
+			bot_vec[index0].erase(bot_vec[index0].begin() + index1);
+		}
+		else {
+			nexus_vec[index0].erase(nexus_vec[index0].begin() + index1);
+		}
+	}
+
+};

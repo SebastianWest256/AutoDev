@@ -94,4 +94,3 @@ bool is_integer(const std::string& str) {
         return false;
     }
 }
-

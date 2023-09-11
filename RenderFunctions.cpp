@@ -798,4 +798,3 @@ void draw_assets(SDL_Surface* surface, std::vector<std::vector<std::vector<Uint3
     }
 
 }
-

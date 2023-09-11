@@ -23,12 +23,12 @@ const int WORLD_Y_OFFSET = 100;
 const int WORLD_PIXEL_SIZE = 2;
 
 const std::vector<std::vector<std::string>> ASSET_NAMES{{
-            "assets/BLOCKS/dirt_0",
+        "assets/BLOCKS/dirt_0",
             "assets/BLOCKS/stone_0",
             "assets/BLOCKS/dev_grid"}, {
+            "assets/BLUE/BLUE BASIC",
             "assets/BLUE/BLUE ALCHEMIST",
             "assets/BLUE/BLUE ARCHER",
-            "assets/BLUE/BLUE BASIC",
             "assets/BLUE/BLUE BUILDER",
             "assets/BLUE/BLUE INFINITE",
             "assets/BLUE/BLUE MAGE",
@@ -37,10 +37,10 @@ const std::vector<std::vector<std::string>> ASSET_NAMES{{
             "assets/BLUE/BLUE SMITH",
             "assets/BLUE/BLUE SOLDIER",
             "assets/BLUE/BLUE TANK",
-            "assets/BLUE/BLUE NEXUS"}, {
+            "assets/BLUE/BLUE NEXUS" }, {
+            "assets/RED/RED BASIC",
             "assets/RED/RED ALCHEMIST",
             "assets/RED/RED ARCHER",
-            "assets/RED/RED BASIC",
             "assets/RED/RED BUILDER",
             "assets/RED/RED INFINITE",
             "assets/RED/RED MAGE",
@@ -49,9 +49,9 @@ const std::vector<std::vector<std::string>> ASSET_NAMES{{
             "assets/RED/RED SMITH",
             "assets/RED/RED SOLDIER",
             "assets/RED/RED TANK",
-            "assets/RED/RED NEXUS"}, {
+            "assets/RED/RED NEXUS" }, {
 
-      }
+            }
 };
 
 void initialize_SDL() {
@@ -201,7 +201,7 @@ int main(int argc, char* argv[]) {
     button[6].init(410, 50, 3, "ERASER", 0xCCCCCC, 0x444444, 0x999999);
     button[7].init(540, 10, 3, "PLACE", 0xCCCCCC, 0x444444, 0x999999);
     button[8].init(540, 50, 3, "MONEY", 0xCCCCCC, 0x444444, 0x999999);
-    button[9].init(650, 10, 3,  "  PEASANT", 0xCCCCCC, 0x444444, 0x999999);
+    button[9].init(650, 10, 3, "  PEASANT", 0xCCCCCC, 0x444444, 0x999999);
     button[10].init(650, 50, 3, "         ", 0xCCCCCC, 0x444444, 0x999999);
     button[11].init(830, 10, 3, " NORMAL", 0xCCCCCC, 0x444444, 0x999999);
     button[12].init(830, 50, 3, "EDIT MONEY", 0xCCCCCC, 0x444444, 0x999999);
@@ -215,27 +215,27 @@ int main(int argc, char* argv[]) {
 
     load_textures(&texture);
 
-    std::vector<std::vector<bot>> bot_vec(3,std::vector<bot>(0));
-    std::vector<std::vector<nexus>> nexus_vec(3,std::vector <nexus>(0));
+    std::vector<std::vector<bot>> bot_vec(3, std::vector<bot>(0));
+    std::vector<std::vector<nexus>> nexus_vec(3, std::vector <nexus>(0));
 
-   /* for (int i = 0; i < bot.size(); i++) {
+    /* for (int i = 0; i < bot.size(); i++) {
 
-          bot[i].init(16 * WORLD_PIXEL_SIZE * 2, 16 * WORLD_PIXEL_SIZE * 16, WORLD_PIXEL_SIZE, 7, 2, 0);
+           bot[i].init(16 * WORLD_PIXEL_SIZE * 2, 16 * WORLD_PIXEL_SIZE * 16, WORLD_PIXEL_SIZE, 7, 2, 0);
 
-    }*/
+     }*/
 
-    /*
-    bot_vec[current_team][bot_vec[current_team].size() - 1].set_waypoints(
-    world, 
-    16 * WORLD_PIXEL_SIZE * 27, 
-    16 * WORLD_PIXEL_SIZE * 2, 
-    WORLD_PIXEL_SIZE, world.size(), 
-    world[0].size());
-    */
+     /*
+     bot_vec[current_team][bot_vec[current_team].size() - 1].set_waypoints(
+     world,
+     16 * WORLD_PIXEL_SIZE * 27,
+     16 * WORLD_PIXEL_SIZE * 2,
+     WORLD_PIXEL_SIZE, world.size(),
+     world[0].size());
+     */
     int current_team = 1;
     int current_class = 0;
     int current_type = 0;
-    
+
     int
         pallet_x = 30,
         pallet_y = 100,
@@ -243,7 +243,7 @@ int main(int argc, char* argv[]) {
 
     draw_world(screen, texture[0], world, WORLD_X_OFFSET, WORLD_Y_OFFSET, WORLD_PIXEL_SIZE);
     draw_assets(screen, texture, pallet_x, pallet_y, pallet_size, current_team);
-    
+
     bool playing = false;
 
     point active_cell;
@@ -280,9 +280,9 @@ int main(int argc, char* argv[]) {
             for (int j = 0; j < 3; j++) {
                 for (int i = 0; i < bot_vec[j].size(); i++) {
 
-                    
-                    bot_vec[j][i].tick(world, nexus_vec, WORLD_PIXEL_SIZE);
-                   
+
+                    bot_vec[j][i].tick(world, bot_vec, nexus_vec, WORLD_PIXEL_SIZE);
+
 
                 }
             }
@@ -303,8 +303,8 @@ int main(int argc, char* argv[]) {
 
             }
         }
-        
-        
+
+
         if (current_input.mouse_pressed && current_input.mouse_reset) {
             if (current_input.mouse_x > WORLD_X_OFFSET &&
                 current_input.mouse_x < WORLD_PIXEL_SIZE * world.size() * 16 + WORLD_X_OFFSET &&
@@ -322,9 +322,9 @@ int main(int argc, char* argv[]) {
                             new_bot.init(
                                 (current_input.mouse_x - WORLD_X_OFFSET) - (current_input.mouse_x - WORLD_X_OFFSET) % (16 * WORLD_PIXEL_SIZE),
                                 (current_input.mouse_y - WORLD_Y_OFFSET) - (current_input.mouse_y - WORLD_Y_OFFSET) % (16 * WORLD_PIXEL_SIZE),
-                                WORLD_PIXEL_SIZE, 2, current_team*2-1, current_team, current_type);
+                                WORLD_PIXEL_SIZE, 2, current_team * 2 - 1, current_team, current_type);
                             bot_vec[current_team].push_back(new_bot);
-                            
+
                             std::cout << bot_vec.size() << " spawned" << std::endl;
                         }
                     }
@@ -352,9 +352,9 @@ int main(int argc, char* argv[]) {
                 if (current_input.mouse_x > pallet_x && current_input.mouse_x < pallet_x + pallet_size * 2 * 16) {
                     current_class = 1;
                 }
-                else if (current_input.mouse_x > pallet_x + pallet_size * 2 * 16 && current_input.mouse_x < pallet_x + pallet_size * 4 * 16){
+                else if (current_input.mouse_x > pallet_x + pallet_size * 2 * 16 && current_input.mouse_x < pallet_x + pallet_size * 4 * 16) {
                     current_class = 2;
-                    current_type = int((current_input.mouse_y - pallet_y) / (pallet_size * 16))*2 + int((current_input.mouse_x - pallet_x) / (pallet_size * 16))-2;
+                    current_type = int((current_input.mouse_y - pallet_y) / (pallet_size * 16)) * 2 + int((current_input.mouse_x - pallet_x) / (pallet_size * 16)) - 2;
                     std::cout << current_type << std::endl;
                 }
 
@@ -378,6 +378,14 @@ int main(int argc, char* argv[]) {
                     nexus_vec[j].clear();
                     money[j] = starting_money;
                 }
+                button[3].text = "START";
+                playing = false;
+                for (int i = 0; i < world[0].size(); i++) {
+                    for (int j = 0; j < world.size(); j++) {
+                        world[j][i].occupied = false;
+                        
+                    }
+                }
             }
             else if (on_button(current_input, button[5])) {
                 current_input.mouse_reset = false;
@@ -395,7 +403,7 @@ int main(int argc, char* argv[]) {
 
 
         }
-        
+
         button[10].text = std::to_string(money[current_team]);
 
         handle_buttons(screen, &button);
